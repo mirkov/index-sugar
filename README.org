@@ -1,0 +1,88 @@
+#+title: Variable indexing syntactic sugar package
+
+* Overview
+
+  This package defines several functions and macros to facilitate
+  programming of equations that involve indexed variables.
+
+  For example, consider a formula that involves operations on elements
+  of an array.  Typically, we use the ~aref~ function to access and
+  set array elements.  For a complicated formula, this leads to very
+  bulky code that is hard to read and compare with typeset equations.
+  One facility in this package allows for variables such as ~x_i~ to
+  be interpreted as ~(aref x i)~.
+
+
+  The code in this package uses simple string manipulations to create
+  lexical bindings or local symbol macros.  User, double-check that
+  the substitutions do what you want them to do.
+
+  The code is the real documentation.  Consult the asdf file for
+  general overview, the package def file for exported functions.  Then
+  find the functions, and study the unit-tests.
+
+  
+
+* ~f-alpha-beta~ 
+
+  Consider a function of the form f(x_\alpha,y_\beta) where \alpha=1,2
+  and \beta=1,2.  Now consider the use of this function in an
+  environment where x_1, x_2, y_1, y_2 are already defined, and we
+  need to evaluate f(x_\alpha,y_\beta) on multiple occasions.  The
+  macro ~with-f-alpha-beta~ binds local variables f-1-1=f(x_1,y_y),
+  f_12=f(x_1,y_2), etc.
+  
+  For example, in an environment with ~f~, ~x-1,2~, ~y-1,2~ already
+  defined, this form
+#+BEGIN_SRC lisp
+  (with-f-alpha-beta ((f x-alpha y-beta) (1 2) (2 1))
+        body)
+#+END_SRC
+  expands as
+#+BEGIN_SRC lisp
+  (let ((f-1-1 (f x-1 y-2))
+        (f-2-1 (f x-2 y-1)))
+    body)
+#+END_SRC
+  Now ~body~ can be written in terms of ~f-1-2~ and ~f-2-1~.
+
+
+* Array indexing shorthand
+
+  For array indexing, the package provides macros ~(with-_-indexing
+  body)~ and ~(with-_-indexing-1 (args) body)~
+
+  The body of these macros is parsed for symbols of the form
+  ~stuff_i_j_k~ where stuff is arbitrary, but cannot contain
+  underscores.  i,j,k are infix type expressions that the macro
+  converts to prefix notation, and applies an optional offset.
+
+  See the unit tests for exhaustive examples.
+
+  The substitution are performed via symbol-macrolet.  Thus, this
+  macro is not transparent to the `if' command.  Do not use
+#+BEGIN_SRC lisp
+(if
+  (with-_-indexing ...))
+#+END_SRC
+Instead switch the order as
+#+BEGIN_SRC lisp
+(with-_-indexing ...
+   (if ...))
+#+END_SRC
+
+Example:
+
+#+BEGIN_SRC lisp
+(with-_-indexing
+   n_i_j_k)
+#+END_SRC
+#+BEGIN_SRC lisp
+  (symbol-macrolet ((n_i_j_k
+                     (aref n (+ i 0) (+ j 1) (+ k 2))))
+    (+ 1.0d0 n_i_j_k))
+#+END_SRC
+
+
+
+  
