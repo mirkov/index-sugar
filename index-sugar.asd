@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-05-25 21:43:44 index-sugar.asd>
+;; Time-stamp: <2012-05-25 23:02:53 index-sugar.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -53,5 +53,5 @@
 	       "lisp-unit"
 	       "cl-ppcre"
 	       "anaphora"
-	       "symbol-processing"
+	       "symbol-name-processing"
 	       "infix2prefix"))

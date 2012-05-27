@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-05-25 21:44:43 index-sugar-package-def.lisp>
+;; Time-stamp: <2012-05-27 11:34:58 index-sugar-package-def.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -24,8 +24,11 @@
 	#:infix2prefix)
   (:import-from :alexandria
 		:symbolicate)
-  (:export #|:defun&vars&eval-calls
-	   :bind-alpha-beta-vars|#)
+  (:export :with-f-alpha-beta
+	   :with-f-alpha
+	   :with-_-indexing
+	   :with-_-indexing-1
+	   :bind-alpha-beta-vars)
   (:documentation
 "Package for easing typing and reading code with many indexed variables.
 

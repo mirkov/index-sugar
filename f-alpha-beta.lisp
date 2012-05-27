@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-05-25 21:29:35 f-alpha-beta.lisp>
+;; Time-stamp: <2012-05-27 11:36:04 f-alpha-beta.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
