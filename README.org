@@ -35,7 +35,7 @@
   For example, in an environment with ~f~, ~x-1,2~, ~y-1,2~ already
   defined, this form
 #+BEGIN_SRC lisp
-  (with-f-alpha-beta ((f x-alpha y-beta) (1 2) (2 1))
+  (with-f-alpha-beta ((1 2) (2 1) (f x-alpha y-beta))
         body)
 #+END_SRC
   expands as

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-05-27 11:36:04 f-alpha-beta.lisp>
+;; Time-stamp: <2012-05-27 13:47:15 f-alpha-beta.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -19,21 +19,35 @@
 
 (in-package :index-sugar)
 
-(defmacro with-f-alpha ((fun &rest lambda-list) alpha-values &body body)
-  (let* ((fun-name (symbol-name fun))
-	 (bindings
-	  (loop for alpha in alpha-values
-	     collect
-	       (let ((fun-alpha
-		      (symbolicate fun-name "-"
-				   (format nil "~a" alpha)))
-		     (args-alpha
-		      (loop for arg in lambda-list
-			   collect
-			   (intern (subst-alpha (symbol-name arg) alpha)))))
-		 `(,fun-alpha (,fun ,@args-alpha))))))
-    `(let (,@bindings)
-       ,@body)))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun build-binding-list-1 (alpha-values fun &rest lambda-list)
+    "Build a binding list for fun and lambda-list args
+FUN - symbol
+LAMBDA-LIST - symbols also
+ALPHA-VALUES - index list"
+    (let ((fun-name (symbol-name fun)))
+      (loop for alpha in alpha-values
+	 collect
+	 (let ((fun-alpha
+		(symbolicate fun-name "-"
+			     (format nil "~a" alpha)))
+	       (args-alpha
+		(loop for arg in lambda-list
+		   collect
+		   (intern (subst-alpha (symbol-name arg) alpha)))))
+	   `(,fun-alpha (,fun ,@args-alpha)))))))
+
+(define-test build-binding-list-1
+  (assert-equal '((f-1 (f x-1 y))
+		  (f-2 (f x-2 y))
+		  (f-3 (f x-3 y)))
+		(build-binding-list-1 '(1 2 3) 'f 'x-alpha 'y)))
+
+
+
+#|(defmacro with-f-alpha ((fun &rest lambda-list) alpha-values &body body)
+  `(let (,@(apply #'build-binding-list-1 alpha-values fun lambda-list))
+     ,@body))
 
 
 (define-test with-f-alpha
@@ -42,28 +56,75 @@
 	  (f-2 (f x-2 y))
 	  (f-3 (f x-3 y)))
      t)
-   (with-f-alpha (f x-alpha y) (1 2 3) t)))
+   (with-f-alpha (f x-alpha y) (1 2 3) t)))|#
+
+(defmacro with-f-alpha ((alpha-values &rest fun-defs)
+			  &body body)
+  `(let (,@(loop for (fun . lambda-list) in fun-defs
+	       append (apply #'build-binding-list-1 alpha-values
+			      fun lambda-list)))
+     ,@body))
+
+(defmacro with-f-alpha* ((alpha-values &rest fun-defs)
+			  &body body)
+  `(let* (,@(loop for (fun . lambda-list) in fun-defs
+	       append (apply #'build-binding-list-1 alpha-values
+			      fun lambda-list)))
+     ,@body))
+
+(define-test with-f-alpha
+  (assert-expands
+   '(let ((f-1 (f x-1 y))
+	  (f-2 (f x-2 y))
+	  (f-3 (f x-3 y))
+	  (g-1 (g x-1 y z-1))
+	  (g-2 (g x-2 y z-2))
+	  (g-3 (g x-3 y z-3)))
+     t)
+   (with-f-alpha ((1 2 3) (f x-alpha y) (g x-alpha y z-alpha)) t))
+    (assert-expands
+   '(let ((f-1 (f x-1 y))
+	  (f-2 (f x-2 y))
+	  (f-3 (f x-3 y)))
+     t)
+   (with-f-alpha-1 ((1 2 3) (f x-alpha y)) t)))
 
 
-(defmacro with-f-alpha-beta ((fun &rest lambda-list)
-			     alpha-values beta-values &body body)
-  (let* ((fun-name (symbol-name fun))
-	 (bindings
-	  (loop for alpha in alpha-values
-	       for beta in beta-values
-	     collect
-	       (let ((fun-alpha-beta
-		      (symbolicate fun-name
-				   "-" (format nil "~a" alpha)
-				   "-" (format nil "~a" beta)))
-		     (args-alpha-beta
-		      (loop for arg in lambda-list
-			   collect
-			   (intern (subst-alpha-beta
-				    (symbol-name arg) alpha beta)))))
-		 `(,fun-alpha-beta (,fun ,@args-alpha-beta))))))
-    `(let (,@bindings)
-       ,@body)))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun build-binding-list-2 (alpha-values beta-values fun &rest lambda-list)
+    "Build a binding list for fun and lambda-list args
+FUN - symbol
+LAMBDA-LIST - symbols also
+ALPHA-VALUES - index list"
+    (let ((fun-name (symbol-name fun)))
+      (loop for alpha in alpha-values
+	 for beta in beta-values
+	 collect
+	   (let ((fun-alpha-beta
+		  (symbolicate fun-name
+			       "-" (format nil "~a" alpha)
+			       "-" (format nil "~a" beta)))
+		 (args-alpha-beta
+		  (loop for arg in lambda-list
+		     collect
+		     (intern (subst-alpha-beta
+			      (symbol-name arg) alpha beta)))))
+	     `(,fun-alpha-beta (,fun ,@args-alpha-beta)))))))
+
+(define-test build-binding-list-2
+  (assert-equal '((f-1-3 (f x-1 y-3))
+		  (f-2-2 (f x-2 y-2))
+		  (f-3-1 (f x-3 y-1)))
+		(build-binding-list-2 '(1 2 3) '(3 2 1)
+				      'f 'x-alpha 'y-beta)))
+
+#|(defmacro with-f-alpha-beta ((alpha-values beta-values
+					   (fun &rest lambda-list))
+			     &body body)
+  `(let (,@(apply #'build-binding-list-2 alpha-values
+		  beta-values fun lambda-list))
+     ,@body))
 
 
 (define-test with-f-alpha-beta
@@ -72,7 +133,42 @@
 	  (f-2-2 (f x-2 y-2))
 	  (f-3-1 (f x-3 y-1)))
      t)
-   (with-f-alpha-beta (f x-alpha y-beta) (1 2 3) (3 2 1) t)))
+   (with-f-alpha-beta ((1 2 3) (3 2 1) (f x-alpha y-beta)) t)))|#
+
+(defmacro with-f-alpha-beta ((alpha-values beta-values
+					   &rest fun-defs)
+			     &body body)
+  `(let (,@(loop for (fun . lambda-list) in fun-defs
+	      append (apply #'build-binding-list-2 alpha-values
+			    beta-values fun lambda-list)))
+     ,@body))
+
+(defmacro with-f-alpha-beta* ((alpha-values beta-values
+					   &rest fun-defs)
+			     &body body)
+  `(let* (,@(loop for (fun . lambda-list) in fun-defs
+	      append (apply #'build-binding-list-2 alpha-values
+			    beta-values fun lambda-list)))
+     ,@body))
+
+(define-test with-f-alpha-beta
+  (assert-expands
+   '(let ((f-1-3 (f x-1 y-3))
+	  (f-2-2 (f x-2 y-2))
+	  (f-3-1 (f x-3 y-1))
+	  (g-1-3 (g x-1 y-3))
+	  (g-2-2 (g x-2 y-2))
+	  (g-3-1 (g x-3 y-1)))
+     t)
+   (with-f-alpha-beta ((1 2 3) (3 2 1)
+			 (f x-alpha y-beta)
+			 (g x-alpha y-beta)) t))
+  (assert-expands
+   '(let ((f-1-3 (f x-1 y-3))
+	  (f-2-2 (f x-2 y-2))
+	  (f-3-1 (f x-3 y-1)))
+     t)
+   (with-f-alpha-beta-1 ((1 2 3) (3 2 1) (f x-alpha y-beta)) t)))
 
 (defmacro defun-w-bindings (alpha-list beta-list fun args &body fun-body)
   "Define function `fun' of `args' with `body'.  Using the

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-05-27 11:34:58 index-sugar-package-def.lisp>
+;; Time-stamp: <2012-05-27 13:47:46 index-sugar-package-def.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -26,6 +26,8 @@
 		:symbolicate)
   (:export :with-f-alpha-beta
 	   :with-f-alpha
+	   :with-f-alpha-beta*
+	   :with-f-alpha*
 	   :with-_-indexing
 	   :with-_-indexing-1
 	   :bind-alpha-beta-vars)

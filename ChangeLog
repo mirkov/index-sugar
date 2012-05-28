@@ -1,0 +1,8 @@
+2012-05-27  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* my-utils/index-sugar/f-alpha-beta.lisp (with-f-alpha): Changed
+	interface to accomodate processing of multiple functions.
+	(with-f-alpha-beta): Same as with `with-f-alpha'
+
+
+
