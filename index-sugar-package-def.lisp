@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-05-27 13:47:46 index-sugar-package-def.lisp>
+;; Time-stamp: <2012-07-11 15:42:54 index-sugar-package-def.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 (defpackage :index-sugar
   (:use #:common-lisp #:split-sequence #:lisp-unit
 	#:anaphora
-	#:symbol-processing
+	#:symbol-name-queries
 	#:infix2prefix)
   (:import-from :alexandria
 		:symbolicate)

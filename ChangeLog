@@ -1,3 +1,11 @@
+2012-07-11  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* index-sugar.asd (index-sugar): Fixed package dependency on
+	symbol-name-queries
+
+	* index-sugar-package-def.lisp (:index-sugar): Fixed used package
+	name symbol-name-queries
+
 2012-05-27  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* my-utils/index-sugar/f-alpha-beta.lisp (with-f-alpha): Changed
